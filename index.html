@@ -171,6 +171,8 @@
     btn.addEventListener('click', e => e.stopPropagation());
   });
 
+  lightboxImg.addEventListener('click', e => e.stopPropagation());
+
   lightbox.addEventListener('click', e => {
     if (e.target === lightbox) {
       lightbox.classList.remove('active');
