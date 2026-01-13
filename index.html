@@ -18,6 +18,7 @@
       font-weight: normal;
     }
 
+    /*Gallery grid, raspolozhenije kartinok*/
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -29,10 +30,84 @@
       width: 100%;
       height: auto;
       border-radius: 6px;
+      cursor: pointer;
     }
 
     .gallery img:hover {
       opacity: 0.85;
+    }
+
+    /*bluring background kada one image opened*/
+    body.lightbox-open .gallery{
+      filter: blur(8px);
+      transition: filter 0.3s ease;
+    }
+
+    /*lightbox overlay*/
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    /*kartinka*/
+    .lightbox img {
+      max-width: 85%;
+      max-height: 75%;
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    /*opisanije kartinki pvz.: Mosque in Tajikistan*/
+    .lightbox .caption {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 80%;
+      color: #ddd;
+      font-size: 14px;
+      text-allign: center;
+      line-height: 1.4;
+      pointer-events: none;
+    }
+
+    /*strelochki na kartinkach kad perekluchat*/
+    .lightbox .nav {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 60px;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .lightbox .nav:hover {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .lightbox .prev {
+      left: 0;
+      justify-content: flex-start;
+      padding-left: 30px;
+    }
+
+    .lightbox .next {
+      right: 0;
+      justify-content: flex-end;
+      padding-right: 30px;
     }
 
     footer {
@@ -48,15 +123,61 @@
 
   <h1>My Photography</h1>
 
-  <div class="gallery">
+<div class="gallery">
 
  <img src="gallery/photo1.jpg" data-description="Mosque in Tajikistan">
- 
+ </div>
+
+<div class="lightbox" id="lightbox">
+  <div class="nav prev">&lt;</div>
+  <img id="lightbox-img">
+  <div class="nav next">&gt;</div>
+  <div class="caption" id="lightbox-caption"></div>
 </div>
 
   <footer>
     © 2025 Andrey
   </footer>
+
+<script>
+  const images = Array.from(document.querySelectorAll('.gallery img'));
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const caption = document.getElementById('lightbox-caption');
+  let currentIndex = 0;
+
+  function openLightbox(index) {
+    currentIndex = index;
+    const img = images[index];
+    lightboxImg.src = img.src;
+    caption.textContent = img.dataset.description || '';
+    lightbox.classList.add('active');
+    document.body.classList.add('lightbox-open');
+  }
+
+  function showNext(dir) {
+    currentIndex = (currentIndex + dir + images.length) % images.length;
+    openLightbox(currentIndex);
+  }
+
+  images.forEach((img, index) => {
+    img.addEventListener('click', () => openLightbox(index));
+  });
+
+  document.querySelector('.next').onclick = () => showNext(1);
+  document.querySelector('.prev').onclick = () => showNext(-1);
+
+  document.querySelectorAll('.nav').forEach(btn => {
+    btn.addEventListener('click', e => e.stopPropagation());
+  });
+
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) {
+      lightbox.classList.remove('active');
+      document.body.classList.remove('lightbox-open');
+    }
+  });
+</script>  
 
 </body>
 </html>
